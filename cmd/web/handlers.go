@@ -17,6 +17,12 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	snippets, err := app.snippets.Latest()
+	if err != nil {
+		app.serveError(w, r, err)
+		return
+	}
+
 	files := []string{
 		"./ui/html/base.tmpl.html",
 		"./ui/html/partials/nav.tmpl.html",
@@ -28,7 +34,12 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serveError(w, r, err)
 		return
 	}
-	err = ts.ExecuteTemplate(w, "base", nil)
+
+	data := templateData{
+		Snippets: snippets,
+	}
+
+	err = ts.ExecuteTemplate(w, "base", data)
 	if err != nil {
 		app.serveError(w, r, err)
 	}
